@@ -1,0 +1,19 @@
+service: serverless-test
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - "Lambda:InvokeFunction"
+          Resource: "*"
+
+functions:
+  function1:
+    handler: index.handler
+  function2:
+    handler: index.invokerFunc
