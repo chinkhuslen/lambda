@@ -7,13 +7,23 @@ provider:
   iam:
     role:
       statements:
-        - Effect: Allow
-          Action:
-            - "Lambda:InvokeFunction"
+        - Effect: "Allow"
+          Resource: "*"
+          Action: "lambda:InvokeFunction"
+        - Effect: "Allow"
+          Action: "dynamodb:*"
           Resource: "*"
 
 functions:
-  function1:
-    handler: index.handler
-  function2:
-    handler: index.invokerFunc
+  handlerGet:
+    handler: index.handlerGet
+  handlerPut:
+    handler: index.handlerPut
+  handlerUpdate:
+    handler: index.handlerUpdate
+    events:
+      -stream:
+        type: dynamodb
+        arn: arn:aws:dynamodb:us-east-1:746204573428:table/UserID/stream/2023-03-28T03:58:51.308
+        batchSize: 10
+        startingPosition: Latest
