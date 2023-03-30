@@ -18,6 +18,11 @@ functions:
     handler: index.handlerGet
   handlerUpdate:
     handler: index.handlerUpdate
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
   handlerPut:
     handler: index.handlerPut
     events:
