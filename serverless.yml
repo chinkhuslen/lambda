@@ -11,17 +11,24 @@ provider:
           Action:
             - "lambda:InvokeFunction"
             - "dynamodb:*"
+            - "s3:*"
           Resource: "*"
 
 functions:
   handlerGet:
     handler: index.handlerGet
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+
   handlerUpdate:
     handler: index.handlerUpdate
     events:
       - http:
           path: /
-          method: get
+          method: post
           cors: true
   handlerPut:
     handler: index.handlerPut
@@ -31,3 +38,30 @@ functions:
           arn: arn:aws:dynamodb:us-east-1:746204573428:table/UserID/stream/2023-03-28T03:58:51.308
           batchSize: 10
           startingPosition: LATEST
+
+  ChBucket:
+    handler: index.ChBucket
+    events:
+      - s3: ch-bucket
+
+resources:
+  Resources:
+    chbucketyaml:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ch-bucket-yaml
+
+    SampleBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref chbucketyaml
+        PolicyDocument:
+          Statement:
+            - Action:
+                - "s3:GetObject"
+                - "s3:PutObject"
+              Effect: Allow
+              Resource:
+                - arn:aws:s3:::ch-bucket-yaml
+                - "arn:aws:s3:::ch-bucket-yaml/*"
+              Principal: "*"
