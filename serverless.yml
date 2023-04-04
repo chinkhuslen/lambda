@@ -41,8 +41,14 @@ functions:
 
   ChBucket:
     handler: index.ChBucket
+
+  ChFilePrint:
+    handler: index.ChFilePrint
     events:
-      - s3: ch-bucket
+      - s3:
+          bucket: ch-bucket-yaml
+          event: s3:ObjectCreated:*
+          existing: true
 
 resources:
   Resources:

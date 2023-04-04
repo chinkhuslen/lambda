@@ -117,3 +117,9 @@ exports.ChBucket = async () => {
   console.log(url);
   return url;
 };
+
+exports.ChFilePrint = async (event) => {
+  console.log(event.Records[0].s3);
+
+  return event;
+};
