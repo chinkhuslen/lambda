@@ -39,11 +39,12 @@ exports.handlerGet = async () => {
   return unmarshall(response.Item);
 };
 
-exports.handlerUpdate = async () => {
+exports.handlerUpdate = async (event) => {
   //   const data = await axios.get(
   //     "https://api.giphy.com/v1/gifs/search?api_key=QPHq62keOwy2IJ46dWicOPFANBwsBnK4&limit=5&offset=0&q=superman"
   //   );
   //   const datasort = data.data?.data.map((el) => el.url);
+
   const response = await db.updateItem({
     TableName: "UserID",
     Key: marshall({ name: "aaa" }),
@@ -107,15 +108,23 @@ exports.handlerUpdate = async () => {
 //   return url;
 // };
 
-exports.ChBucket = async () => {
+exports.ChBucket = async (event) => {
+  const { fileType, fileName } = JSON.parse(event.body);
   const params = {
     Bucket: "ch-bucket-yaml",
-    Key: "img.png",
-    ContentType: "image/png",
+    Key: fileName,
+    ContentType: fileType,
   };
   let url = s3.getSignedUrl("putObject", params);
   console.log(url);
-  return url;
+  return {
+    statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
+    body: JSON.stringify(url),
+  };
 };
 
 exports.ChFilePrint = async (event) => {

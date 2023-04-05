@@ -41,6 +41,11 @@ functions:
 
   ChBucket:
     handler: index.ChBucket
+    events:
+      - http:
+          path: /
+          method: post
+          cors: true
 
   ChFilePrint:
     handler: index.ChFilePrint
@@ -56,7 +61,16 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ch-bucket-yaml
-
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "GET"
+                - "POST"
+                - "PUT"
+              AllowedOrigins:
+                - "*"
     SampleBucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -66,8 +80,8 @@ resources:
             - Action:
                 - "s3:GetObject"
                 - "s3:PutObject"
+                - "s3:PutObjectAcl"
               Effect: Allow
               Resource:
-                - arn:aws:s3:::ch-bucket-yaml
                 - "arn:aws:s3:::ch-bucket-yaml/*"
               Principal: "*"
