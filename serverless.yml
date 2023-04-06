@@ -12,6 +12,7 @@ provider:
             - "lambda:InvokeFunction"
             - "dynamodb:*"
             - "s3:*"
+            - "rekognition:*"
           Resource: "*"
 
 functions:

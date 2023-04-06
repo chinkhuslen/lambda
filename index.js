@@ -3,7 +3,10 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { S3 } = require("aws-sdk");
+const nodemailer = require("nodemailer");
 const s3 = new S3();
+const AWS = require("aws-sdk");
+const recog = new AWS.Rekognition();
 // const axios = require("axios");
 // const bcrypt = require("bcryptjs");
 const db = new DynamoDB();
@@ -128,7 +131,45 @@ exports.ChBucket = async (event) => {
 };
 
 exports.ChFilePrint = async (event) => {
-  console.log(event.Records[0].s3);
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+  const params = {
+    Image: {
+      S3Object: {
+        Bucket: event.Records[0].s3.bucket.name,
+        Name: event.Records[0].s3.object.key,
+      },
+    },
+  };
+  const res = await recog.detectText(params).promise();
+  const result = res.TextDetections.filter((el) =>
+    el.DetectedText.includes("@") ? validateEmail(el.DetectedText) : false
+  );
+  console.log(result);
 
-  return event;
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: result.DetectedText, // generated ethereal user
+      pass: "ioodbtqqezwkfbwt", // generated ethereal password
+    },
+  });
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail({
+    from: "chinkhuslen99@gmail.com", // sender address
+    to: "chinkhuslen99@gmail.com,chinkhuslen10@gmail.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: "<b>Hello world?</b>", // html body
+  });
+
+  return info.messageId;
 };
